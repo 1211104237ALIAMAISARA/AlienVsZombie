@@ -115,7 +115,6 @@ public:
 
         cout << "\n\n";
 
-        gameDashboard(bots, player, numOfZombies);
     }
 
     int getColumn() const
@@ -192,6 +191,7 @@ public:
 
         return objects[obj(random)];
     }
+
 };
 
 class Zombie
@@ -273,11 +273,6 @@ public:
         range_ = zombies_[zombieIndex_][4];
     }
 
-    //int getAttack()
-    //{
-    //    return attack_;
-    //}
-
     void zombieAttributes(const int &numOfZombies)
     {
         for (int x = 1; x <= numOfZombies; x++)
@@ -290,13 +285,6 @@ public:
             attack_ = 5 + (rand() % 30);
             setAttack((x - 1), attack_);
         }
-    }
-
-    void zombieStatus(const int &numOfZombies)
-    {
-        for (int i = 1; i <= numOfZombies; i++)
-        cout << "Zombie " << i << " : Life " << zombies_[i-1][3] << ", Attack " << zombies_[i-1][2] << ", Range " << zombies_[i-1][4] << endl;
-        cout << endl;
     }
 
     void zombiePos(Board &playingBoard, const int &numOfZombies)
@@ -353,6 +341,7 @@ public:
                 zombieMove(playingBoard);
                 zombieAttack(playingBoard, player);
                 playingBoard.display(bots, player, numOfZombies);
+                gameDashboard(player, numOfZombies);
             }
             turns_ = 0;
         }
@@ -514,6 +503,15 @@ public:
     }
 
     void zombieAttack(Board &playingBoard, Alien &player);
+
+    void gameDashboard(Alien &player, const int &numOfZombies);
+
+    void zombieStatus(const int &numOfZombies){
+        for (int i = 1; i <= numOfZombies; i++){
+        cout << "Zombie " << i << " : Life " << zombies_[i-1][3] << ", Attack " << zombies_[i-1][2] << ", Range " << zombies_[i-1][4] << endl;
+
+        }
+    }
 };
 
 class Alien
@@ -536,10 +534,10 @@ public:
         return y_;
     }
 
-    void alienStatus()
-    {
-        cout << "Alien: Life: " << life_ << " Attack: " << attack_ << endl;
-    }
+    //void alienStatus()
+    //{
+    //    cout << "Alien: Life: " << life_ << " Attack: " << attack_ << endl;
+    //}
 
     void lifeUpdate(int &damage)
     {
@@ -694,6 +692,8 @@ public:
         cout << "Alien: \nLife: " << life_ << " Attack: " << attack_ << "\n\n";
 
         playingBoard.display(bots, player, numOfZombies);
+        player.alienStatus();
+        bots.zombieStatus(numOfZombies);
 
         system("pause");
     }
@@ -701,6 +701,8 @@ public:
     void podObstacles(Board &playingBoard, Zombie &bots, Alien &player, int &xPos, int &yPos, const int &numOfZombies)
     {
         playingBoard.display(bots, player, numOfZombies);
+        player.alienStatus();
+        bots.zombieStatus(numOfZombies);
         int podDamage = 20;
         int minDistance;
         int zombieIndex;
@@ -723,7 +725,9 @@ public:
             
         }
 
-        cout << "Minimum distance " << minDistance << "zombie" << zombieIndex;
+        cout << "Alien stumbles upon a pod.\n " << "Alien has attack Zombie" << zombieIndex << endl;
+        playingBoard.display(bots, player, numOfZombies);
+        bots.gameDashboard(player, numOfZombies);
 
         bots.lifeUpdate((zombieIndex - 1), podDamage);
 
@@ -744,6 +748,8 @@ public:
         char newObj = objects[random(device)];
 
         playingBoard.display(bots, player, numOfZombies);
+        player.alienStatus();
+        bots.zombieStatus(numOfZombies);
 
         switch (newObj)
         {
@@ -772,6 +778,8 @@ public:
     void borderObstacles(Board &playingBoard, Zombie &bots, Alien &player, const int &numOfZombies)
     {
         playingBoard.display(bots, player, numOfZombies);
+        player.alienStatus();
+        bots.zombieStatus(numOfZombies);
         cout << "Alien hits a border.\n\n";
         system("pause");
 
@@ -781,6 +789,8 @@ public:
     void arrowObstacles(Board &playingBoard,  Alien &player, Zombie &bots, const int &numOfZombies)
     {
         playingBoard.display(bots, player, numOfZombies);
+        player.alienStatus();
+        bots.zombieStatus(numOfZombies);
         cout << "Alien finds an arrow\n";
         cout << "Alien's attack is increase by 20\n\n";
 
@@ -835,6 +845,10 @@ public:
     bool getTurns(){
         return turns_;
     }
+
+    void alienStatus(){
+        cout << "Alien    : Life " << life_ << ", Attack " << attack_ << endl;
+    }
 };
 
 
@@ -858,12 +872,17 @@ void Zombie::zombieAttack(Board &playingBoard, Alien &player){
     }
 }
 
+void Zombie::gameDashboard(Alien &player, const int &numOfZombies){
+    player.alienStatus();
+    zombieStatus(numOfZombies);
+}
+
+
 
 
 void displayMenu();
 void changeGameSettings(int &boardRows, int &boardColumns, int &numOfZombies, bool &settingsDone);
 void startGame(const int &boardColumns, const int &boardRows, const int &numOfZombies);
-void gameDashboard(Zombie &bots, Alien &player, const int & numOfZombies);
 void gameControl(Alien &player, Board &playingBoard, Zombie &bots, const int & numOfZombies);
 void commandHelp();
 
@@ -995,23 +1014,14 @@ void startGame(const int &boardColumns, const int &boardRows, const int &numOfZo
     {
 
         playingBoard.display(bots, player, numOfZombies);
-        //gameDashboard(bots, player, numOfZombies);
+        player.alienStatus();
+        bots.zombieStatus(numOfZombies);
         gameControl(player, playingBoard, bots, numOfZombies);
         playingBoard.display(bots, player, numOfZombies);
         bots.zombieTurns();
         bots.zombieMainMove(playingBoard, player, bots, numOfZombies);
    
     }
-}
-
-void gameDashboard(Zombie &bots, Alien &player, const int &numOfZombies)
-{
-    //if(player.getTurns() == 1){
-    //    cout << "=>"
-    //}
-    player.alienStatus();
-    bots.zombieStatus(numOfZombies);
-    // This function display the status of entity on the board
 }
 
 void gameControl(Alien &player, Board &playingBoard, Zombie &bots, const int &numOfZombies)
